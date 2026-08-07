@@ -181,8 +181,10 @@ async function loadLibrary() {
   state.library = items;
   box.innerHTML = `<div class="grid">${items
     .map(
+      // #t=1 заставляет браузер показать кадр с первой секунды,
+      // иначе карточка остаётся чёрным прямоугольником до нажатия.
       (m, i) => `<button class="card" data-i="${i}">
-        <video src="/videos/${m.video}" preload="metadata" muted></video>
+        <video src="/videos/${m.video}#t=1" preload="metadata" muted></video>
         <div class="label"><b>${m.title}</b>
         <span>${m.seconds} с · ${m.voice}</span></div>
       </button>`

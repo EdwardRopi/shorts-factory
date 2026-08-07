@@ -20,3 +20,10 @@ PIXABAY_API_KEY = os.getenv("PIXABAY_API_KEY", "")
 
 PROMPTS_DIR = ROOT / "prompts"
 OUT_DIR = ROOT / "out"
+
+# Витрина: интерфейс работает, сборка выключена. Нужен для бесплатного хостинга,
+# где нет ни памяти под модель озвучки, ни процессорного времени под ffmpeg.
+DEMO_MODE = os.getenv("DEMO_MODE", "").lower() in ("1", "true", "yes")
+
+# Откуда брать готовые ролики. На витрине это папка demo/, лежащая в репозитории.
+VIDEO_DIR = ROOT / os.getenv("VIDEO_DIR", "out/videos")

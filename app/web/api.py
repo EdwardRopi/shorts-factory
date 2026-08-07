@@ -10,6 +10,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from app import config
 from app.ai.tts import SapiTTS, SileroTTS
 from app.render import STEPS, VIDEO_DIR
 from app.web import jobs
@@ -17,6 +18,23 @@ from app.web import jobs
 STATIC = Path(__file__).parent / "static"
 
 app = FastAPI(title="Shorts Factory")
+
+
+@app.on_event("startup")
+def warm_up() -> None:
+    """Грузим модель озвучки заранее, в главном потоке.
+
+    Если этого не сделать, torch инициализируется уже внутри рабочего потока
+    очереди и роняет весь процесс segfault'ом на первой же задаче.
+    """
+    if config.DEMO_MODE:
+        print("[warmup] витрина: сборка выключена, модель не грузим")
+        return
+    try:
+        SileroTTS()._load()
+        print("[warmup] модель озвучки готова")
+    except Exception as e:
+        print(f"[warmup] Silero недоступен, останется SAPI: {e}")
 
 
 class JobRequest(BaseModel):
@@ -36,15 +54,26 @@ def get_config() -> dict:
     except Exception:
         voices = []
     voices.append({"id": SapiTTS().voice, "engine": "sapi"})
+    if config.DEMO_MODE and not voices[:-1]:
+        voices = [{"id": v, "engine": "silero"} for v in
+                  ("xenia", "baya", "kseniya", "aidar", "eugene")]
     return {
         "voices": voices,
         "steps": [{"key": k, "label": label} for k, label in STEPS],
         "durations": [15, 30, 45, 60],
+        "demo": config.DEMO_MODE,
     }
 
 
 @app.post("/api/jobs")
 def create_job(req: JobRequest) -> dict:
+    if config.DEMO_MODE:
+        raise HTTPException(
+            503,
+            "Это витрина: сборка здесь выключена. Ролик весит серверу минуту "
+            "процессорного времени и полтора гигабайта памяти под модель озвучки, "
+            "чего на бесплатном хостинге нет. Готовые ролики ниже собраны локально.",
+        )
     job = jobs.create(req.topic.strip(), req.duration, req.voice, req.music, req.fresh)
     return job.as_dict()
 

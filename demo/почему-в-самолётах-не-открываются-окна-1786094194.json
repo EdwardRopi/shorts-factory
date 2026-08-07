@@ -1,0 +1,78 @@
+{
+  "video": "почему-в-самолётах-не-открываются-окна-1786094194.mp4",
+  "topic": "Почему в самолётах не открываются окна",
+  "title": "Почему в самолёте НЕЛЬЗЯ открыть окно?",
+  "hook": "А знали, что в самолёте окно реально может открыться? Только не так, как вы думаете.",
+  "hashtags": [
+    "#авиация",
+    "#самолёты",
+    "#факты",
+    "#безопасность",
+    "#интересно"
+  ],
+  "seconds": 19.55,
+  "size_mb": 7.7,
+  "elapsed": 145.8,
+  "music": "«Sincerely» — Kevin MacLeod (incompetech.com), CC BY 4.0",
+  "engine": "silero",
+  "voice": "xenia",
+  "authors": [
+    "Engin Akyurt",
+    "Mst Haspia  Akter",
+    "Narli's Journey Book",
+    "Osman Başkurt",
+    "Vincent Rivaud"
+  ],
+  "scenes": [
+    {
+      "id": 1,
+      "text": "На высоте 10 км давление за бортом в три раза ниже, чем внутри.",
+      "caption": "10 000 метров",
+      "seconds": 3.725,
+      "query": "airplane window view from cockpit at high altitude",
+      "poster": "https://images.pexels.com/videos/38303725/pexels-photo-38303725.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=630",
+      "author": "Mst Haspia  Akter",
+      "provider": "pexels"
+    },
+    {
+      "id": 2,
+      "text": "Если открыть окно, кислорода не хватит даже на 10 секунд.",
+      "caption": "Нет воздуха!",
+      "seconds": 3.775,
+      "query": "close up airplane window lock mechanism",
+      "poster": "https://images.pexels.com/videos/31387526/pexels-photo-31387526.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=630",
+      "author": "Vincent Rivaud",
+      "provider": "pexels"
+    },
+    {
+      "id": 3,
+      "text": "Из-за разницы давления температуру в салоне упадёт до минус 50.",
+      "caption": "-50 градусов",
+      "seconds": 3.825,
+      "query": "airplane interior during extreme cold simulation",
+      "poster": "https://images.pexels.com/videos/10419525/advanced-technology-airbus-aircraft-airplane-10419525.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=630",
+      "author": "Osman Başkurt",
+      "provider": "pexels"
+    },
+    {
+      "id": 4,
+      "text": "Даже если окно взорвётся, кислородные маски развернутся автоматически.",
+      "caption": "Маски есть!",
+      "seconds": 4.425,
+      "query": "oxygen mask deployment inside airplane cabin",
+      "poster": "https://images.pexels.com/videos/34579678/pexels-photo-34579678.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=630",
+      "author": "Narli's Journey Book",
+      "provider": "pexels"
+    },
+    {
+      "id": 5,
+      "text": "Авиация — это инженерия безопасности, а не прихоть.",
+      "caption": "Это разумно.",
+      "seconds": 3.8,
+      "query": "airplane cabin security warning sign close up",
+      "poster": "https://images.pexels.com/videos/27733954/above-aerial-view-air-vehicle-aircraft-wing-27733954.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=630",
+      "author": "Engin Akyurt",
+      "provider": "pexels"
+    }
+  ]
+}

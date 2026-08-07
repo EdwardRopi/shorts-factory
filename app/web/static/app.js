@@ -36,6 +36,8 @@ async function boot() {
     .map((v) => `<option value="${v.id}"${v.id === "xenia" ? " selected" : ""}>${v.id} · ${v.engine}</option>`)
     .join("");
 
+  if (cfg.demo) showDemoBanner();
+
   drawTransport(-1, "queued");
   await loadLibrary();
 
@@ -45,6 +47,23 @@ async function boot() {
     const job = await fetch(`/api/jobs/${wanted}`).then((r) => r.json());
     if (job && job.id) render(job);
   }
+}
+
+function showDemoBanner() {
+  state.demo = true;
+  const el = $("demo-banner");
+  el.className = "banner";
+  el.hidden = false;
+  el.innerHTML = `<b>Витрина</b>
+    Здесь можно рассмотреть интерфейс и готовые ролики, но собрать новый нельзя:
+    одна сборка занимает минуту процессорного времени и полтора гигабайта памяти
+    под модель озвучки. Бесплатный хостинг такого не выдержит.
+    Ролики ниже собраны на локальной машине той же командой
+    <code>python -m app.render_cli "тема"</code>.`;
+
+  $("go").disabled = true;
+  $("go").textContent = "Сборка недоступна";
+  $("topic").disabled = true;
 }
 
 function drawTransport(activeIndex, status) {

@@ -1,0 +1,22 @@
+# Витрина на Render: интерфейс и готовые ролики, без сборки.
+#
+# Собирать видео здесь нельзя осознанно: бесплатный инстанс даёт 512 МБ памяти
+# и дробный CPU, а одному рендеру нужны модель озвучки на 139 МБ, torch на
+# ~300 МБ и минута процессорного времени. Полноценный сервис живёт на VPS.
+
+services:
+  - type: web
+    name: shorts-factory
+    runtime: python
+    plan: free
+    region: frankfurt
+    buildCommand: pip install -r requirements-web.txt
+    startCommand: uvicorn app.web.api:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.10"
+      - key: DEMO_MODE
+        value: "true"
+      # Готовые ролики лежат в репозитории: постоянного диска на free нет.
+      - key: VIDEO_DIR
+        value: demo

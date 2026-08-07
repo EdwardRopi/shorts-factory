@@ -1,0 +1,78 @@
+{
+  "video": "почему-коты-мурлыкают-1786093961.mp4",
+  "topic": "Почему коты мурлыкают",
+  "title": "Почему коты мурлыкают? Научный факт!",
+  "hook": "Знаете, что значит мурчание кота? Это не просто нежность!",
+  "hashtags": [
+    "#коты",
+    "#почему",
+    "#факты",
+    "#кошачьямифы",
+    "#мурчание",
+    "#питомцы"
+  ],
+  "seconds": 19.35,
+  "size_mb": 10.9,
+  "elapsed": 22.8,
+  "music": "«Deliberate Thought» — Kevin MacLeod (incompetech.com), CC BY 4.0",
+  "engine": "silero",
+  "voice": "xenia",
+  "authors": [
+    "K",
+    "Samar Layek",
+    "Tima Miroshnichenko",
+    "[A] [B] [S]"
+  ],
+  "scenes": [
+    {
+      "id": 1,
+      "text": "Мурчание — это ультразвук, который лечит кота с рождения.",
+      "caption": "Вибрируют кости!",
+      "seconds": 3.838,
+      "query": "close up fluffy cat purring relaxed",
+      "poster": "https://images.pexels.com/videos/6131504/pexels-photo-6131504.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=630",
+      "author": "Tima Miroshnichenko",
+      "provider": "pexels"
+    },
+    {
+      "id": 2,
+      "text": "Когда кот мурлычет, его мышцы расслабляются за секунды.",
+      "caption": "Снимает боль",
+      "seconds": 3.25,
+      "query": "cat sleeping on couch soft light",
+      "poster": "https://images.pexels.com/videos/31533130/british-shorthair-31533130.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=630",
+      "author": "[A] [B] [S]",
+      "provider": "pexels"
+    },
+    {
+      "id": 3,
+      "text": "Малыши мурлыкают во время кормления — так они просят защиты.",
+      "caption": "Сигнал безопасности",
+      "seconds": 3.775,
+      "query": "kitten nursing mother cat close",
+      "poster": "https://images.pexels.com/videos/38087174/pexels-photo-38087174.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=630",
+      "author": "K",
+      "provider": "pexels"
+    },
+    {
+      "id": 4,
+      "text": "Учёные считают, что частота 25–150 Гц ускоряет заживление костей.",
+      "caption": "Лечит раны",
+      "seconds": 4.275,
+      "query": "cat sitting on windowsill looking outside",
+      "poster": "https://images.pexels.com/videos/11060729/4k-4k-background-4k-resolution-4k-video-11060729.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=630",
+      "author": "Samar Layek",
+      "provider": "pexels"
+    },
+    {
+      "id": 5,
+      "text": "Мурчание — это способ кота сказать: «Мне с тобой спокойно».",
+      "caption": "Это любовь",
+      "seconds": 4.213,
+      "query": "happy cat close up petting owner",
+      "poster": "https://images.pexels.com/videos/6131052/pexels-photo-6131052.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=630",
+      "author": "Tima Miroshnichenko",
+      "provider": "pexels"
+    }
+  ]
+}

@@ -107,6 +107,34 @@ h1 {
 }
 .chip.live { color: var(--amber); border-color: color-mix(in srgb, var(--amber) 45%, var(--line)); }
 
+.banner {
+  margin-top: 22px;
+  padding: 15px 18px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--amber);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--amber) 7%, var(--panel));
+  font-size: 14px;
+  line-height: 1.6;
+}
+.banner b {
+  font-family: var(--display);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  font-size: 12.5px;
+  color: var(--amber);
+  display: block;
+  margin-bottom: 4px;
+}
+.banner code {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  background: var(--bg);
+  padding: 1px 6px;
+  border-radius: 2px;
+  color: var(--text);
+}
+
 .cols {
   display: grid;
   grid-template-columns: 366px minmax(0, 1fr);

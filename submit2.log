@@ -1,0 +1,29 @@
+job: 3a539d9dff5b | Почему в самолётах не открываются окна
+  running  script    генерирую сценарий
+  running  script    генерирую сценарий
+  running  voice     озвучиваю 5 сцен (silero)
+  running  clips     подбираю клипы под реальные тайминги
+  running  clips     подбираю клипы под реальные тайминги
+  running  clips     подбираю клипы под реальные тайминги
+  running  clips     подбираю клипы под реальные тайминги
+  running  clips     подбираю клипы под реальные тайминги
+  running  clips     подбираю клипы под реальные тайминги
+  running  clips     подбираю клипы под реальные тайминги
+  running  media     сцена 1 из 5
+  running  media     сцена 1 из 5
+  running  media     сцена 2 из 5
+  running  media     сцена 2 из 5
+  running  media     сцена 3 из 5
+  running  media     сцена 3 из 5
+  running  media     сцена 4 из 5
+  running  media     сцена 5 из 5
+  running  media     сцена 5 из 5
+  running  subs      размечаю по словам
+  running  subs      размечаю по словам
+  running  subs      размечаю по словам
+  running  compose   склеиваю и нормализую звук
+  running  compose   склеиваю и нормализую звук
+  running  compose   склеиваю и нормализую звук
+  done     done      почему-в-самолётах-не-открываются-окна-1786094194.
+видео: почему-в-самолётах-не-открываются-окна-1786094194.mp4
+ссылка: http://127.0.0.1:8420/?job=3a539d9dff5b

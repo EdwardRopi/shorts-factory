@@ -24,7 +24,7 @@ from app.video.music import credit, pick
 from app.video.normalize import normalize_video, pad_audio
 from app.video.subtitles import build_ass
 
-VIDEO_DIR = config.OUT_DIR / "videos"
+VIDEO_DIR = config.VIDEO_DIR
 
 STEPS: list[tuple[str, str]] = [
     ("order", "Заказ"),

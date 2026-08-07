@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -13,6 +14,10 @@ from app.ai.providers import LLMError, LLMProvider, get_provider
 from app.schemas import CYRILLIC, Script
 
 SCRIPT_CACHE = config.ROOT / "cache" / "scripts"
+
+# Латинское слово от трёх букв. Двухбуквенные пропускаем: это обычно
+# единицы измерения вроде «мм» в латинской раскладке или римские цифры.
+LATIN_WORD = re.compile(r"\b[A-Za-z]{3,}\b")
 
 # Темп речи, измеренный на реальном синтезе: Silero xenia даёт около 2,0 слов
 # в секунду, SAPI Irina — 1,7. Ориентируемся на основной движок. Это только
@@ -52,6 +57,22 @@ def build_prompt(params: ScriptParams) -> str:
     )
 
 
+def unwrap(raw: dict) -> dict:
+    """Снять лишнюю обёртку вокруг сценария.
+
+    Модель иногда отвечает {"video": {...}} или {"script": {...}} вместо
+    плоского объекта. Содержимое при этом корректное, и выбрасывать
+    нормальную генерацию из-за одного лишнего уровня вложенности глупо.
+    """
+    if "scenes" in raw:
+        return raw
+    if len(raw) == 1:
+        inner = next(iter(raw.values()))
+        if isinstance(inner, dict) and "scenes" in inner:
+            return inner
+    return raw
+
+
 def check_language(script: Script, params: ScriptParams) -> None:
     """Мелкие модели любят ответить по-английски, что бы им ни велели.
 
@@ -65,6 +86,16 @@ def check_language(script: Script, params: ScriptParams) -> None:
             "Весь текст написан не по-русски. Поля title, hook, voiceover, "
             "on_screen_text, cta и hashtags должны быть на русском языке. "
             "На английском остаётся только search_query_en."
+        )
+
+    # Латиница в озвучке — не косметика: русский синтезатор читает английское
+    # слово по буквам или коверкает, и сцена звучит сломанной.
+    latin = LATIN_WORD.findall(" ".join([script.title, script.hook, spoken]))
+    if latin:
+        raise LLMError(
+            f"В русском тексте латиница: {', '.join(sorted(set(latin))[:5])}. "
+            f"Замени эти слова русскими — диктор не сможет их произнести. "
+            f"Латиница допустима только в поле search_query_en."
         )
 
 
@@ -116,7 +147,7 @@ def generate_script(
     for attempt in range(1, attempts + 1):
         try:
             raw = provider.complete_json(system, user, schema)
-            script = Script.model_validate(raw)
+            script = Script.model_validate(unwrap(raw))
             check_language(script, params)
             check_length(script, params)
             if use_cache:

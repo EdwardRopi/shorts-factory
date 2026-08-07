@@ -13,10 +13,38 @@ EMOJI = re.compile(
 )
 
 
+SHOUTING = re.compile(r"\b[А-ЯЁA-Z]{2,}\b")
+
+# Аббревиатуры, которые пишутся капслоком по правилам и кричанием не являются.
+ABBREVIATIONS = {
+    "ДНК", "РНК", "ВОЗ", "СССР", "США", "РФ", "ООН", "ГОСТ", "СМИ", "ВИЧ",
+    "УФ", "ТВ", "ЖКТ", "СПИД", "МЧС", "НАСА", "ЕС", "ОАЭ", "КНР", "ЦРУ",
+}
+
+
 def reject_cjk(value: str, field: str) -> str:
     if CJK.search(value):
         raise ValueError(f"{field}: уберите иероглифы, пишите только на языке ролика — {value!r}")
     return value
+
+
+def calm_down(text: str) -> str:
+    """Убрать крик: капслок и частокол восклицательных знаков.
+
+    Это косметика, из-за которой не стоит выбрасывать готовый сценарий, —
+    правим молча, а не гоняем модель на повторную генерацию.
+    """
+    def unshout(m: re.Match) -> str:
+        word = m.group(0)
+        return word if word in ABBREVIATIONS else word.capitalize()
+
+    text = SHOUTING.sub(unshout, text)
+    text = re.sub(r"!{2,}", "!", text)
+    # Один восклицательный знак на фразу — предел приличия.
+    if text.count("!") > 1:
+        head, _, tail = text.partition("!")
+        text = head + "!" + tail.replace("!", ".")
+    return text.strip()
 
 
 class Scene(BaseModel):
@@ -31,7 +59,7 @@ class Scene(BaseModel):
     @field_validator("voiceover")
     @classmethod
     def clean_voiceover(cls, v: str) -> str:
-        return reject_cjk(v.strip(), "voiceover")
+        return calm_down(reject_cjk(v.strip(), "voiceover"))
 
     @field_validator("search_query_en")
     @classmethod
@@ -71,7 +99,7 @@ class Script(BaseModel):
     @field_validator("title", "hook", "cta", "description")
     @classmethod
     def clean_text(cls, v: str) -> str:
-        return reject_cjk(v.strip(), "текст")
+        return calm_down(reject_cjk(v.strip(), "текст"))
 
     @model_validator(mode="after")
     def renumber(self) -> "Script":

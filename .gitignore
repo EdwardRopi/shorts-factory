@@ -12,3 +12,4 @@ assets/music/*.mp3
 assets/music/*.m4a
 assets/music/*.wav
 assets/music/*.ogg
+*.log

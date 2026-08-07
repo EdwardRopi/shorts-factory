@@ -1,0 +1,7 @@
+# Атрибуция треков. Формат: имя_файла = текст, который обязан увидеть пользователь.
+# Лицензия CC BY 4.0 требует указания автора в описании каждого опубликованного ролика.
+
+Inspired.mp3 = «Inspired» — Kevin MacLeod (incompetech.com), CC BY 4.0
+Deliberate_Thought.mp3 = «Deliberate Thought» — Kevin MacLeod (incompetech.com), CC BY 4.0
+Sincerely.mp3 = «Sincerely» — Kevin MacLeod (incompetech.com), CC BY 4.0
+Ethereal_Relaxation.mp3 = «Ethereal Relaxation» — Kevin MacLeod (incompetech.com), CC BY 4.0

@@ -1,0 +1,391 @@
+/* Монтажная. Материал темы — плёнка: перфорация, таймкоды, лента сцен.
+   Акцент совпадает с цветом подсветки субтитров в самих роликах. */
+
+:root {
+  --bg:      #10141a;
+  --panel:   #171d26;
+  --raised:  #1e2632;
+  --line:    #2b3542;
+  --line-hi: #3b4757;
+  --text:    #e7ecf3;
+  --muted:   #8794a5;
+  --dim:     #5b6777;
+  --amber:   #ffc53d;   /* активное состояние = цвет активного слова в субтитрах */
+  --teal:    #3ec6a4;   /* готово */
+  --red:     #e5675c;
+
+  --gutter: 74px;
+  --radius: 3px;
+
+  --display: "Bahnschrift", "Segoe UI Semibold", "Arial Narrow", sans-serif;
+  --body: "Segoe UI", system-ui, sans-serif;
+  --mono: "Consolas", "Cascadia Mono", monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+body {
+  padding-left: var(--gutter);
+  min-height: 100vh;
+}
+
+/* --- перфорация плёнки в левом поле --- */
+.sprockets {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: var(--gutter);
+  background: var(--panel);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 18px;
+  gap: 22px;
+  overflow: hidden;
+}
+.sprockets::after {
+  content: "";
+  position: absolute;
+  top: 96px; bottom: 0; left: 50%;
+  width: 26px;
+  transform: translateX(-50%);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--bg) 0 18px,
+    transparent 18px 40px
+  );
+  border-radius: 2px;
+  opacity: .55;
+}
+.mark {
+  writing-mode: vertical-rl;
+  font-family: var(--display);
+  font-size: 13px;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+/* --- каркас --- */
+.wrap { max-width: 1366px; padding: 26px 34px 70px; }
+
+header.top {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+h1 {
+  font-family: var(--display);
+  font-size: 27px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin: 0;
+}
+.tagline { color: var(--muted); font-size: 13.5px; }
+.spacer { flex: 1; }
+
+.chip {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  padding: 3px 11px;
+  white-space: nowrap;
+}
+.chip.live { color: var(--amber); border-color: color-mix(in srgb, var(--amber) 45%, var(--line)); }
+
+.cols {
+  display: grid;
+  grid-template-columns: 366px minmax(0, 1fr);
+  gap: 26px;
+  margin-top: 26px;
+  align-items: start;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.panel > h2 {
+  font-family: var(--display);
+  font-size: 12.5px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0;
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--line);
+}
+.panel .body { padding: 18px; }
+
+/* --- форма --- */
+label.field { display: block; margin-bottom: 15px; }
+label.field > span {
+  display: block;
+  font-size: 12px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+textarea, select, input[type="text"] {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font-family: var(--body);
+  font-size: 14.5px;
+  resize: vertical;
+}
+textarea:focus, select:focus, button:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+.segmented { display: flex; gap: 6px; }
+.segmented button {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  border-radius: var(--radius);
+  padding: 8px 0;
+  font-family: var(--mono);
+  font-size: 13px;
+  cursor: pointer;
+}
+.segmented button[aria-pressed="true"] {
+  background: var(--raised);
+  border-color: var(--line-hi);
+  color: var(--text);
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 13px;
+  cursor: pointer;
+}
+.toggle input { accent-color: var(--amber); width: 15px; height: 15px; }
+
+.go {
+  width: 100%;
+  background: var(--amber);
+  color: #16181c;
+  border: 0;
+  border-radius: var(--radius);
+  padding: 13px;
+  font-family: var(--display);
+  font-size: 15px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.go:hover { filter: brightness(1.08); }
+.go:disabled { opacity: .4; cursor: not-allowed; }
+
+.hint { color: var(--dim); font-size: 12.5px; margin: 11px 0 0; }
+
+/* --- транспорт: 8 шагов --- */
+.transport { display: flex; gap: 3px; padding: 18px 18px 0; }
+.stage { flex: 1; min-width: 0; }
+.stage .bar {
+  height: 4px;
+  background: var(--raised);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.stage .bar i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--amber);
+  transition: width .45s ease;
+}
+.stage.done .bar i { width: 100%; background: var(--teal); }
+.stage.active .bar i { width: 100%; animation: pulse 1.5s ease-in-out infinite; }
+.stage .name {
+  font-size: 10.5px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-top: 7px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.stage.active .name { color: var(--amber); }
+.stage.done .name { color: var(--muted); }
+
+@keyframes pulse { 0%, 100% { opacity: 1 } 50% { opacity: .35 } }
+
+.status-line {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 16px 18px 0;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--muted);
+}
+.status-line .dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--dim);
+}
+.status-line.running .dot { background: var(--amber); animation: pulse 1.2s infinite; }
+.status-line.done .dot { background: var(--teal); }
+.status-line.failed .dot { background: var(--red); }
+
+/* --- лента сцен: ширина блока = реальная длительность --- */
+.strip-wrap { padding: 18px; }
+.ruler {
+  position: relative;
+  height: 15px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 7px;
+}
+.ruler span {
+  position: absolute;
+  top: 0;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--dim);
+  transform: translateX(-50%);
+  padding-left: 1px;
+  border-left: 1px solid var(--line);
+}
+.strip { display: flex; gap: 3px; min-height: 108px; }
+.block {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+  background: var(--raised) center/cover no-repeat;
+  min-width: 0;
+  animation: drop .35s ease both;
+}
+@keyframes drop { from { opacity: 0; transform: translateY(-7px) } }
+.block::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(9,12,16,.15) 40%, rgba(9,12,16,.9));
+}
+.block .meta {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 7px 8px;
+  z-index: 1;
+}
+.block .tc {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--amber);
+}
+.block .cap {
+  font-size: 11.5px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.block .num {
+  position: absolute;
+  top: 6px; left: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: rgba(255,255,255,.75);
+  z-index: 1;
+}
+
+.empty {
+  color: var(--dim);
+  font-size: 14px;
+  padding: 30px 18px 34px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  margin: 18px;
+  text-align: center;
+}
+
+/* --- результат --- */
+.result { display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 20px; padding: 18px; }
+.result video {
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  background: #000;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.result h3 { font-family: var(--display); font-size: 19px; margin: 0 0 5px; letter-spacing: .02em; }
+.result .hook { color: var(--muted); margin: 0 0 15px; }
+.facts { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 15px; }
+.tags { color: var(--dim); font-size: 12.5px; font-family: var(--mono); }
+.credits { color: var(--dim); font-size: 12px; margin-top: 13px; line-height: 1.65; }
+
+.err {
+  margin: 18px;
+  padding: 13px 15px;
+  border: 1px solid color-mix(in srgb, var(--red) 45%, var(--line));
+  border-left-width: 3px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--red) 8%, transparent);
+  color: #f0b5af;
+  font-size: 13.5px;
+}
+
+/* --- библиотека --- */
+.library { margin-top: 26px; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+  gap: 13px;
+  padding: 18px;
+}
+.card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--raised);
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+  padding: 0;
+  font: inherit;
+}
+.card:hover { border-color: var(--line-hi); }
+.card video { width: 100%; aspect-ratio: 9/16; display: block; background: #000; }
+.card .label { padding: 9px 10px; }
+.card .label b { display: block; font-weight: 500; font-size: 13px; }
+.card .label span { font-family: var(--mono); font-size: 11px; color: var(--dim); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+@media (max-width: 1100px) {
+  .cols { grid-template-columns: 1fr; }
+  .result { grid-template-columns: 1fr; }
+  .result video { max-width: 236px; }
+}

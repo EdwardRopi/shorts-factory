@@ -1,0 +1,14 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+media/
+out/
+cache/
+
+# Музыку и модели не храним в git: вес и лицензия. Треки ставятся руками,
+# см. assets/music/README.md
+assets/music/*.mp3
+assets/music/*.m4a
+assets/music/*.wav
+assets/music/*.ogg

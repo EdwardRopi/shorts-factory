@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shorts Factory — монтажная</title>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<aside class="sprockets" aria-hidden="true">
+  <div class="mark">Shorts Factory</div>
+</aside>
+
+<div class="wrap">
+  <header class="top">
+    <h1>Монтажная</h1>
+    <span class="tagline">тема на входе — вертикальный ролик на выходе</span>
+    <span class="spacer"></span>
+    <span class="chip" id="engine-chip">1080×1920 · 30 fps</span>
+  </header>
+
+  <div class="cols">
+    <!-- ЗАКАЗ -->
+    <section class="panel">
+      <h2>Заказ</h2>
+      <div class="body">
+        <form id="order">
+          <label class="field">
+            <span>Тема ролика</span>
+            <textarea id="topic" rows="3" required
+              placeholder="Например: почему в самолётах не открываются окна"></textarea>
+          </label>
+
+          <label class="field">
+            <span>Длительность</span>
+            <div class="segmented" id="durations" role="group"></div>
+          </label>
+
+          <label class="field">
+            <span>Голос</span>
+            <select id="voice"></select>
+          </label>
+
+          <label class="toggle">
+            <input type="checkbox" id="music" checked>
+            Фоновая музыка
+          </label>
+          <label class="toggle">
+            <input type="checkbox" id="fresh">
+            Написать сценарий заново
+          </label>
+
+          <button class="go" id="go" type="submit">Собрать ролик</button>
+          <p class="hint">Сборка занимает от одной до трёх минут. Повторный запуск
+            той же темы идёт быстрее: сценарий, голос и клипы берутся из кэша.</p>
+        </form>
+      </div>
+    </section>
+
+    <!-- РЕНДЕР -->
+    <section class="panel">
+      <h2>Сборка</h2>
+
+      <div class="transport" id="transport"></div>
+      <div class="status-line" id="status">
+        <span class="dot"></span>
+        <span id="status-text">Простой</span>
+        <span class="spacer"></span>
+        <span id="status-detail"></span>
+      </div>
+
+      <div id="stage-area">
+        <p class="empty">Здесь появится лента сцен. Ширина блока равна реальной
+          длительности озвучки — её задаёт голос, а не расчёт.</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- БИБЛИОТЕКА -->
+  <section class="panel library">
+    <h2>Готовые ролики</h2>
+    <div id="library"><p class="empty">Пока пусто. Соберите первый ролик.</p></div>
+  </section>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>

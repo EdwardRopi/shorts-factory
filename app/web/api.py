@@ -40,7 +40,7 @@ def warm_up() -> None:
 class JobRequest(BaseModel):
     topic: str = Field(min_length=3, max_length=200)
     duration: int = Field(default=30, ge=15, le=90)
-    voice: str = "xenia"
+    voice: str = "baya"
     music: bool = True
     fresh: bool = False
     folder: str = ""
@@ -72,7 +72,7 @@ def get_config() -> dict:
     voices.append({"id": SapiTTS().voice, "engine": "sapi"})
     if config.DEMO_MODE and not voices[:-1]:
         voices = [{"id": v, "engine": "silero"} for v in
-                  ("xenia", "baya", "kseniya", "aidar", "eugene")]
+                  ("baya", "xenia", "kseniya", "aidar", "eugene")]
     return {
         "voices": voices,
         "steps": [{"key": k, "label": label} for k, label in STEPS],

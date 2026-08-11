@@ -19,10 +19,21 @@ SCRIPT_CACHE = config.ROOT / "cache" / "scripts"
 # единицы измерения вроде «мм» в латинской раскладке или римские цифры.
 LATIN_WORD = re.compile(r"\b[A-Za-z]{3,}\b")
 
-# Темп речи, измеренный на реальном синтезе: Silero xenia даёт около 2,0 слов
-# в секунду, SAPI Irina — 1,7. Ориентируемся на основной движок. Это только
-# оценка для промпта: точную длительность сцены задаёт готовый файл озвучки.
-WORDS_PER_SECOND = 2.0
+# «XIX» — тоже латиница, и Silero прочитает её по буквам. Отклонять правильно,
+# но модели нужно объяснить это отдельно: подсказка про торговые марки ей тут
+# не помогает, и она молча повторяет ту же цифру все три попытки.
+ROMAN_NUMERAL = re.compile(r"^[IVXLCDM]+$", re.IGNORECASE)
+
+# Темп речи, измеренный на реальном синтезе пяти реплик разной длины:
+# Silero baya даёт 2,1 слова в секунду, xenia — 2,4, SAPI Irina — 1,7.
+# Ориентируемся на голос по умолчанию. Это только оценка для промпта: точную
+# длительность сцены задаёт готовый файл озвучки.
+WORDS_PER_SECOND = 2.1
+
+# Сколько бы слов ни попросили, модель приносит меньше. Просим с запасом,
+# иначе ролик выходит короче заказанного на треть. Коэффициент подобран
+# замерами: на 1.25 начинался перелёт до 36 секунд при цели 30.
+UNDERSHOOT = 1.15
 
 
 @dataclass
@@ -36,8 +47,14 @@ class ScriptParams:
         return max(3, min(8, round(self.duration / 6)))
 
     @property
-    def total_words(self) -> int:
+    def natural_words(self) -> int:
+        """Сколько слов физически нужно, чтобы заполнить хронометраж."""
         return round(self.duration * WORDS_PER_SECOND)
+
+    @property
+    def total_words(self) -> int:
+        """Сколько слов просим у модели — с запасом на её систематический недобор."""
+        return round(self.natural_words * UNDERSHOOT)
 
     @property
     def words_per_scene(self) -> int:
@@ -92,16 +109,27 @@ def check_language(script: Script, params: ScriptParams) -> None:
     # слово по буквам или коверкает, и сцена звучит сломанной.
     latin = LATIN_WORD.findall(" ".join([script.title, script.hook, spoken]))
     if latin:
+        found = sorted(set(latin))[:5]
+        how = (
+            "Названия и марки запиши кириллицей по произношению "
+            "(Midjourney → Мидджорни, iPhone → айфон), остальное переведи."
+        )
+        if any(ROMAN_NUMERAL.match(word) for word in found):
+            how = "Римские цифры пиши словами: «XIX век» → «девятнадцатый век». " + how
         raise LLMError(
-            f"В русском тексте латиница: {', '.join(sorted(set(latin))[:5])}. "
-            f"Замени эти слова русскими — диктор не сможет их произнести. "
-            f"Латиница допустима только в поле search_query_en."
+            f"В русском тексте латиница: {', '.join(found)}. "
+            f"Диктор не сможет это произнести. {how} Латиница допустима "
+            f"только в поле search_query_en."
         )
 
 
 def check_length(script: Script, params: ScriptParams) -> None:
-    """Недобор по словам — самая частая проблема: ролик выйдет вдвое короче заказанного."""
-    target = params.total_words
+    """Недобор по словам — самая частая проблема: ролик выйдет короче заказанного.
+
+    Сверяемся с реальной потребностью, а не с завышенным запросом: просим мы
+    с запасом, но браковать сценарий за то, что он не дотянул до запаса, глупо.
+    """
+    target = params.natural_words
     got = script.word_count
     if got < target * 0.7:
         raise LLMError(
@@ -125,6 +153,7 @@ def generate_script(
     provider: LLMProvider | None = None,
     attempts: int = 3,
     use_cache: bool = True,
+    nudge: str = "",
 ) -> Script:
     """Сгенерировать сценарий. При невалидном ответе показываем модели её ошибку.
 
@@ -133,6 +162,8 @@ def generate_script(
     """
     provider = provider or get_provider()
 
+    # С подсказкой кэш не трогаем: мы как раз и хотим другой, более длинный текст.
+    use_cache = use_cache and not nudge
     cached = _cache_path(params, provider.name)
     if use_cache and cached.exists():
         try:
@@ -141,6 +172,8 @@ def generate_script(
             cached.unlink(missing_ok=True)
     system = build_prompt(params)
     user = f"Сделай сценарий на тему: {params.topic}"
+    if nudge:
+        user += f"\n\n{nudge}"
     schema = Script.model_json_schema()
 
     last_error: Exception | None = None

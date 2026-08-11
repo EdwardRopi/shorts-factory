@@ -37,7 +37,7 @@ async function boot() {
   });
 
   $("voice").innerHTML = cfg.voices
-    .map((v) => `<option value="${v.id}"${v.id === "xenia" ? " selected" : ""}>${v.id} · ${v.engine}</option>`)
+    .map((v) => `<option value="${v.id}"${v.id === "baya" ? " selected" : ""}>${v.id} · ${v.engine}</option>`)
     .join("");
 
   if (cfg.demo) showDemoBanner();

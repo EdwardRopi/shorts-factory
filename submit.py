@@ -9,7 +9,7 @@ topic = sys.argv[1] if len(sys.argv) > 1 else "Почему коты мурлы�
 
 with httpx.Client(trust_env=False, base_url="http://127.0.0.1:8420", timeout=60) as c:
     job = c.post("/api/jobs", json={
-        "topic": topic, "duration": 30, "voice": "xenia", "music": True, "fresh": False,
+        "topic": topic, "duration": 30, "voice": "baya", "music": True, "fresh": False,
     }).json()
     print("job:", job["id"], "|", job["topic"])
 

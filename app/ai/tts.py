@@ -31,7 +31,11 @@ def audio_duration(path: Path) -> float:
         ["ffprobe", "-v", "error", "-show_entries", "format=duration",
          "-of", "csv=p=0", str(path)]
     )
-    return round(float(out.stdout.strip()), 3)
+    try:
+        return round(float(out.stdout.strip()), 3)
+    except ValueError as e:
+        reason = (out.stderr or "").strip()[:200] or "ffprobe промолчал"
+        raise TTSError(f"не читается длительность {path.name}: {reason}") from e
 
 
 class TTSProvider(ABC):
@@ -51,7 +55,15 @@ class TTSProvider(ABC):
             self._synthesize(text, path)
         if not path.exists() or path.stat().st_size == 0:
             raise TTSError(f"{self.name}: синтез не дал файла")
-        return path, audio_duration(path)
+        try:
+            return path, audio_duration(path)
+        except TTSError:
+            # Файл есть, но ffprobe его не понимает: запись оборвалась на середине
+            # и в кэше остался огрызок. Выбрасываем и синтезируем заново — один
+            # битый wav не повод терять весь ролик.
+            path.unlink(missing_ok=True)
+            self._synthesize(text, path)
+            return path, audio_duration(path)
 
 
 class SapiTTS(TTSProvider):
@@ -95,7 +107,7 @@ class SileroTTS(TTSProvider):
     VERSION = "v5_ru"
     _model_cache: dict[str, object] = {}
 
-    def __init__(self, voice: str = "xenia", sample_rate: int = 48000,
+    def __init__(self, voice: str = "baya", sample_rate: int = 48000,
                  version: str | None = None):
         self.voice = voice
         self.sample_rate = sample_rate
@@ -174,10 +186,10 @@ def get_tts(name: str | None = None, voice: str | None = None) -> TTSProvider:
     if name == "sapi":
         return SapiTTS(voice or "Microsoft Irina Desktop")
     if name == "silero":
-        return SileroTTS(voice or "xenia")
+        return SileroTTS(voice or "baya")
 
     try:
         import torch  # noqa: F401
-        return SileroTTS(voice or "xenia")
+        return SileroTTS(voice or "baya")
     except ImportError:
         return SapiTTS(voice or "Microsoft Irina Desktop")

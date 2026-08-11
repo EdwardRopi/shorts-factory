@@ -18,10 +18,11 @@ from app.ai.script import ScriptParams
 from app.ai.transcribe import words_for
 from app.ai.tts import TTSProvider, get_tts
 from app.pipeline import VideoPlan, build_plan
-from app.stock.downloader import download
+from app.stock.downloader import DownloadError, download
+from app.video import montage
 from app.video.compose import compose
 from app.video.music import credit, pick
-from app.video.normalize import normalize_video, pad_audio
+from app.video.normalize import pad_audio
 from app.video.subtitles import build_ass
 
 VIDEO_DIR = config.VIDEO_DIR
@@ -67,6 +68,7 @@ def render_video(
     with_subs: bool = True,
     with_music: bool = True,
     report: Reporter | None = None,
+    out_dir: Path | None = None,
 ) -> RenderResult:
     started = time.perf_counter()
     tts = tts or get_tts()
@@ -89,11 +91,19 @@ def render_video(
     if missing:
         raise RuntimeError(f"нет клипов для сцен: {', '.join(map(str, missing))}")
 
+    # Триптих ставим один раз за ролик и знаем это заранее: только для его сцены
+    # есть смысл качать третий клип, остальным хватает двух на перебивки.
+    triptych_at = montage.pick_triptych_scene(len(plan.scenes))
+
     pairs = []
-    for sp in plan.scenes:
+    for i, sp in enumerate(plan.scenes):
         step("media", f"сцена {sp.scene.id} из {len(plan.scenes)}")
-        src = download(sp.clip)
-        pairs.append((normalize_video(src, sp.duration), pad_audio(sp.audio, sp.duration)))
+        want = montage.BANDS if i == triptych_at else 2
+        srcs = _download_sources([sp.clip, *sp.alternates], want, sp.scene.id, plan)
+        shots = montage.plan_shots(sp.duration, len(srcs),
+                                   triptych=(i == triptych_at))
+        pairs.append((montage.build_scene(srcs, sp.duration, shots),
+                      pad_audio(sp.audio, sp.duration)))
 
     subs = None
     if with_subs:
@@ -109,7 +119,7 @@ def render_video(
     track = pick(params.topic) if with_music else None
 
     step("compose", "склеиваю и нормализую звук")
-    out = VIDEO_DIR / f"{slugify(params.topic)}-{int(time.time())}.mp4"
+    out = (out_dir or VIDEO_DIR) / f"{slugify(params.topic)}-{int(time.time())}.mp4"
     compose(pairs, out, subtitles=subs, music=track, total_seconds=plan.total_seconds)
 
     step("done", out.name)
@@ -126,6 +136,28 @@ def render_video(
     )
     _write_sidecar(result, params)
     return result
+
+
+def _download_sources(clips, want: int, scene_id: int, plan) -> list[Path]:
+    """Скачать до want клипов сцены — из них монтируются планы и триптих.
+
+    Ссылки на файлы живут в кэше поиска сутки, и часть из них к моменту
+    загрузки отдаёт 403 или 404. Один протухший адрес не повод терять ролик:
+    сцена соберётся и на меньшем числе клипов, просто менее разнообразной.
+    """
+    got: list[Path] = []
+    last: Exception | None = None
+    for clip in [c for c in clips if c is not None]:
+        if len(got) >= want:
+            break
+        try:
+            got.append(download(clip))
+        except DownloadError as e:
+            last = e
+            plan.warnings.append(f"сцена {scene_id}: {clip.key} не скачался, беру запасной")
+    if not got:
+        raise RuntimeError(f"сцена {scene_id}: ни один клип не скачался ({last})")
+    return got
 
 
 def _write_sidecar(result: RenderResult, params: ScriptParams) -> None:

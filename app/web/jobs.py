@@ -16,7 +16,7 @@ from typing import Any
 
 from app.ai.script import ScriptParams
 from app.ai.tts import get_tts
-from app.render import STEPS, render_video
+from app.render import STEPS, VIDEO_DIR, render_video
 
 _pool = ThreadPoolExecutor(max_workers=1, thread_name_prefix="render")
 _lock = threading.Lock()
@@ -29,6 +29,7 @@ class Job:
     topic: str
     duration: int
     voice: str
+    folder: str = ""
     status: str = "queued"  # queued | running | done | failed
     step: str = "order"
     detail: str = ""
@@ -44,6 +45,7 @@ class Job:
             "topic": self.topic,
             "duration": self.duration,
             "voice": self.voice,
+            "folder": self.folder,
             "status": self.status,
             "step": self.step,
             "step_index": done_index,
@@ -55,8 +57,10 @@ class Job:
         }
 
 
-def create(topic: str, duration: int, voice: str, music: bool, fresh: bool) -> Job:
-    job = Job(id=uuid.uuid4().hex[:12], topic=topic, duration=duration, voice=voice)
+def create(topic: str, duration: int, voice: str, music: bool, fresh: bool,
+           folder: str = "") -> Job:
+    job = Job(id=uuid.uuid4().hex[:12], topic=topic, duration=duration, voice=voice,
+              folder=folder)
     with _lock:
         _jobs[job.id] = job
     _pool.submit(_run, job, music, fresh)
@@ -85,6 +89,7 @@ def _run(job: Job, music: bool, fresh: bool) -> None:
             tts=get_tts(voice=job.voice),
             use_cache=not fresh,
             report=report,
+            out_dir=VIDEO_DIR / job.folder if job.folder else None,
         )
         job.scenes = [
             {
@@ -101,7 +106,9 @@ def _run(job: Job, music: bool, fresh: bool) -> None:
         ]
         job.warnings = result.plan.warnings
         job.result = {
-            "video": result.video.name,
+            # Путь относительно VIDEO_DIR, а не одно имя: ролики лежат по папкам,
+            # и ровно такой путь ждёт роут /videos/{name:path}.
+            "video": result.video.relative_to(VIDEO_DIR).as_posix(),
             "title": result.plan.script.title,
             "hook": result.plan.script.hook,
             "hashtags": result.plan.script.hashtags,

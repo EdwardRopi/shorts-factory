@@ -43,6 +43,22 @@ class JobRequest(BaseModel):
     voice: str = "xenia"
     music: bool = True
     fresh: bool = False
+    folder: str = ""
+
+
+# Символы, запрещённые в именах папок Windows, плюс разделители пути.
+_BAD_IN_NAME = set('\\/:*?"<>|')
+
+
+def safe_folder(name: str) -> str:
+    """Имя папки из пользовательского ввода.
+
+    Поле приходит из браузера, поэтому в нём может оказаться что угодно, вплоть
+    до `..\\..\\Windows`. Оставляем ровно одно звено пути без служебных символов.
+    Пустое поле — не корень: иначе ролики снова копятся кучей в out/videos.
+    """
+    cleaned = "".join(" " if c in _BAD_IN_NAME else c for c in name).strip(" .")
+    return cleaned[:60].strip() or "разное"
 
 
 @app.get("/api/config")
@@ -74,7 +90,8 @@ def create_job(req: JobRequest) -> dict:
             "процессорного времени и полтора гигабайта памяти под модель озвучки, "
             "чего на бесплатном хостинге нет. Готовые ролики ниже собраны локально.",
         )
-    job = jobs.create(req.topic.strip(), req.duration, req.voice, req.music, req.fresh)
+    job = jobs.create(req.topic.strip(), req.duration, req.voice, req.music, req.fresh,
+                      folder=safe_folder(req.folder))
     return job.as_dict()
 
 

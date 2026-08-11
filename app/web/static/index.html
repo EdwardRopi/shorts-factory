@@ -29,9 +29,16 @@
       <div class="body">
         <form id="order">
           <label class="field">
-            <span>Тема ролика</span>
-            <textarea id="topic" rows="3" required
-              placeholder="Например: почему в самолётах не открываются окна"></textarea>
+            <span>Темы роликов — по одной в строке</span>
+            <textarea id="topic" rows="5" required
+              placeholder="почему в самолётах не открываются окна&#10;как накопить первую подушку безопасности&#10;5 признаков, что вы живёте не по средствам"></textarea>
+          </label>
+
+          <label class="field">
+            <span>Папка для роликов</span>
+            <input id="folder" type="text" list="folders" placeholder="например: финансы"
+              autocomplete="off">
+            <datalist id="folders"></datalist>
           </label>
 
           <label class="field">
@@ -53,9 +60,11 @@
             Написать сценарий заново
           </label>
 
-          <button class="go" id="go" type="submit">Собрать ролик</button>
-          <p class="hint">Сборка занимает от одной до трёх минут. Повторный запуск
-            той же темы идёт быстрее: сценарий, голос и клипы берутся из кэша.</p>
+          <button class="go" id="go" type="submit">Собрать ролики</button>
+          <p class="hint">Один ролик собирается две-три минуты, темы идут по очереди:
+            параллельный рендер только мешает сам себе. Повторный запуск той же темы
+            быстрее — сценарий, голос и клипы берутся из кэша. Окно можно закрыть,
+            сборка не остановится.</p>
         </form>
       </div>
     </section>
@@ -69,6 +78,7 @@
         <span class="dot"></span>
         <span id="status-text">Простой</span>
         <span class="spacer"></span>
+        <span id="queue-info"></span>
         <span id="status-detail"></span>
       </div>
 

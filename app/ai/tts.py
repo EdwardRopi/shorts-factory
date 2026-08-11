@@ -157,9 +157,15 @@ class SileroTTS(TTSProvider):
 
             path = self._fetch_model()
             torch.set_num_threads(4)
-            model = torch.package.PackageImporter(str(path)).load_pickle(
-                "tts_models", "model"
-            )
+            # Читатель архивов у torch написан на C++ и открывает файл через
+            # fopen без поддержки юникода: путь с кириллицей он «не находит»,
+            # хотя файл на месте. Пользователь вправе распаковать программу в
+            # папку с русским именем, поэтому отдаём уже открытый файловый
+            # объект — с путями Python разбирается сам.
+            with open(path, "rb") as fh:
+                model = torch.package.PackageImporter(fh).load_pickle(
+                    "tts_models", "model"
+                )
             model.to(torch.device("cpu"))
             self._model_cache[self.version] = model
         return self._model_cache[self.version]

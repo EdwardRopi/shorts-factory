@@ -85,15 +85,21 @@ def list_jobs() -> dict:
 
 @app.get("/api/library")
 def library() -> dict:
-    """Готовые ролики читаем с диска: они должны пережить перезапуск сервера."""
+    """Готовые ролики читаем с диска: они должны пережить перезапуск сервера.
+
+    Ролики разложены по тематическим подпапкам, поэтому обходим дерево целиком,
+    а в meta["video"] кладём путь относительно VIDEO_DIR — его же ждёт /videos/.
+    """
     items = []
-    for meta_path in sorted(VIDEO_DIR.glob("*.json"),
+    for meta_path in sorted(VIDEO_DIR.rglob("*.json"),
                             key=lambda p: p.stat().st_mtime, reverse=True):
         try:
             meta = json.loads(meta_path.read_text(encoding="utf-8"))
         except (json.JSONDecodeError, OSError):
             continue
-        if (VIDEO_DIR / meta.get("video", "")).is_file():
+        video = meta_path.parent / meta.get("video", "")
+        if video.is_file():
+            meta["video"] = video.relative_to(VIDEO_DIR).as_posix()
             items.append(meta)
     return {"items": items}
 
@@ -106,7 +112,7 @@ def get_job(job_id: str) -> dict:
     return job.as_dict()
 
 
-@app.get("/videos/{name}")
+@app.get("/videos/{name:path}")
 def get_video(name: str) -> FileResponse:
     path = (VIDEO_DIR / name).resolve()
     if not path.is_file() or VIDEO_DIR.resolve() not in path.parents:

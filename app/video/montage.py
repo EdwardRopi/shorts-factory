@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from app import config
-from app.video.ffmpeg import probe_duration, run
+from app.video.ffmpeg import FFmpegError, probe_duration, run
 
 SCENE_CACHE = config.ROOT / "cache" / "scenes"
 
@@ -166,17 +166,47 @@ def build_scene(sources: list[Path], duration: float, shots: list[Shot]) -> Path
     # той же длины, что и её озвучка.
     steps.append("[vcat]tpad=stop_mode=clone:stop_duration=1,format=yuv420p[vout]")
 
-    run([
-        *args,
-        "-filter_complex", ";".join(steps),
-        "-map", "[vout]", "-an",
-        "-t", f"{duration:.3f}",
-        "-r", str(FPS),
-        "-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
-        "-video_track_timescale", "30000",
-        str(out),
-    ], f"монтаж сцены ({len(shots)} планов)")
+    try:
+        run([
+            *args,
+            "-filter_complex", ";".join(steps),
+            "-map", "[vout]", "-an",
+            "-t", f"{duration:.3f}",
+            "-r", str(FPS),
+            "-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
+            "-video_track_timescale", "30000",
+            str(out),
+        ], f"монтаж сцены ({len(shots)} планов)")
+    except FFmpegError:
+        # Попадаются клипы, которые ffmpeg открывает, но не отдаёт из них ни
+        # одного кадра — обычно это оборванная закачка. Сложная схема на таком
+        # разваливается целиком, поэтому собираем сцену простейшим способом:
+        # один клип на всю длину, без нарезки и наездов. Ролик с менее живой
+        # сценой лучше, чем потерянный ролик.
+        out.unlink(missing_ok=True)
+        _plain_scene(sources, duration, out)
     return out
+
+
+def _plain_scene(sources: list[Path], duration: float, out: Path) -> None:
+    """Запасная сцена: первый клип, который вообще даёт кадры."""
+    last: Exception | None = None
+    for src in sources:
+        try:
+            run([
+                "-stream_loop", "-1", "-i", str(src),
+                "-t", f"{duration:.3f}",
+                "-vf", f"{_fill(WIDTH, HEIGHT)},format=yuv420p",
+                "-an",
+                "-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
+                "-video_track_timescale", "30000",
+                str(out),
+            ], f"простая сцена из {src.name}")
+            return
+        except FFmpegError as e:
+            last = e
+            out.unlink(missing_ok=True)
+    raise FFmpegError(f"сцена не собралась ни из одного клипа: {last}")
 
 
 def _fill(w: int, h: int) -> str:

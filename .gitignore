@@ -14,3 +14,7 @@ assets/music/*.wav
 assets/music/*.ogg
 *.log
 *.err
+
+# Рабочие списки очереди сборки: что осталось собрать и что не далось.
+prompts/*.pending.txt
+prompts/*.failed.txt
